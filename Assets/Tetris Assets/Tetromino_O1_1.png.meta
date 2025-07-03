@@ -134,7 +134,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Tetromino_O1_1_0: -1337887494857611513
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
