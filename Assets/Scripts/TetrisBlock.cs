@@ -62,7 +62,6 @@ public class TetrisBlock : MonoBehaviour
                 transform.position += Vector3.up;
                 SnapToGrid();
                 AddToGrid();
-                ClearLines();
                 enabled = false;
                 FindFirstObjectByType<SpawnTetromino>().SpawnNext();
             }
@@ -147,41 +146,6 @@ public class TetrisBlock : MonoBehaviour
         }
         return true;
     }
-
-    /* =======  CLEAR LINES  ======= */
-
-    private void ClearLines()
-    {
-        for (int y = 0; y < height; y++)          // ⚠️ chỉ 0‑19
-        {
-            if (IsLineFull(y))
-            {
-                DeleteLine(y);
-                RowDown(y + 1);                   // dồn phần trên (kể cả hàng ẩn)
-                y--;                              // kiểm tra lại chính hàng đó
-            }
-        }
-    }
-
-    private bool IsLineFull(int y)
-    {
-        for (int x = 0; x < width; x++)
-            if (grid[x, y] == null) return false;
-        return true;
-    }
-
-    private void DeleteLine(int y)
-    {
-        for (int x = 0; x < width; x++)
-        {
-            if (grid[x, y] != null)
-            {
-                Destroy(grid[x, y].gameObject);
-                grid[x, y] = null;               // tránh “null ảo”
-            }
-        }
-    }
-
     private void RowDown(int startY)
     {
         for (int y = startY; y < gridHeight; y++)
