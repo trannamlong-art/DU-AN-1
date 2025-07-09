@@ -25,9 +25,22 @@ public class TetrisBlock : MonoBehaviour
         // Game Over nếu spawn đã đè khối cũ
         if (!ValidMove())
         {
-            Debug.Log("Game Over");
+            transform.position += Vector3.up;
+
+            // ⚠️ Snap cả object cha và block con về đúng lưới **trước khi ghi vào grid**
+            SnapToGrid();
+
+            // Kiểm tra lại sau snap lần cuối nếu vẫn sai thì không ghi lưới
+            if (!ValidMove())
+            {
+                Debug.LogError("Snap sai: vẫn invalid sau khi Snap lại");
+                return;
+            }
+
+            AddToGrid();
+
             enabled = false;
-            // TODO: gọi GameManager.GameOver() nếu có
+            FindFirstObjectByType<SpawnTetromino>().SpawnNext();
         }
     }
 
@@ -100,6 +113,7 @@ public class TetrisBlock : MonoBehaviour
         }
 
         transform.position = new Vector3(Mathf.Round(transform.position.x), Mathf.Round(transform.position.y), 0f);
+
     }
 
 
@@ -121,7 +135,13 @@ public class TetrisBlock : MonoBehaviour
                 continue;
 
             grid[pos.x, pos.y] = child;
-            child.SetParent(null);            // block trở thành gạch tĩnh
+            // ⚠️ CHỈ GỌI SetParent(null) SAU KHI block đã nằm yên
+        }
+
+        // ✅ Tách block ra khỏi Tetromino khi chúng đã dính vào lưới
+        foreach (Transform child in transform)
+        {
+            child.SetParent(null);
         }
     }
 
@@ -145,21 +165,6 @@ public class TetrisBlock : MonoBehaviour
             if (t != null && t.parent != transform) return false;
         }
         return true;
-    }
-    private void RowDown(int startY)
-    {
-        for (int y = startY; y < gridHeight; y++)
-        {
-            for (int x = 0; x < width; x++)
-            {
-                if (grid[x, y] != null)
-                {
-                    grid[x, y - 1] = grid[x, y];
-                    grid[x, y] = null;
-                    grid[x, y - 1].position += Vector3.down;
-                }
-            }
-        }
     }
 }
     

@@ -430,13 +430,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tetrominoPrefabs:
-  - {fileID: 7052207587527960167, guid: 7f6eaf9fda35d6946943a04312b06fb7, type: 3}
-  - {fileID: 1148976935010358279, guid: d9ce1909b99cdce4c8360c4ed5b46779, type: 3}
-  - {fileID: 2262354638909320726, guid: bd57462a0a02e77448023dea4ed3c18d, type: 3}
-  - {fileID: 5439626523628823226, guid: b675156b39c51994b963e0334a08020d, type: 3}
-  - {fileID: 1127737607127341844, guid: e21cb779af126814c84c6d86d47b1e98, type: 3}
-  - {fileID: 6515532481585383025, guid: 26439639b1fb68341a2ed398d8ed0605, type: 3}
-  - {fileID: 4023771573627535825, guid: 5b614c3a11107ea45a5e21e69eab2168, type: 3}
+  - {fileID: 6722457090151333202, guid: 31cb1337025edd24a8ee7ff94fb74309, type: 3}
+  - {fileID: 8385440510259892842, guid: 4a417be4e62174848afc93ac5df622df, type: 3}
+  - {fileID: 1611097421905709500, guid: ceb09027234502f4ba548f2689dd0cb8, type: 3}
+  - {fileID: 7196453189818818942, guid: 845b17ca91f16e34fb7151157324ed36, type: 3}
+  - {fileID: 7816141582525045935, guid: e89b6dd25d6013a48ba75c86b010cd85, type: 3}
+  - {fileID: 6601102021950415647, guid: 492fd7dceff81bc4f9ac6dbd9f53ef5e, type: 3}
+  - {fileID: 97287703850424728, guid: a4be1a2ae30043b439d9d3dfb8535b26, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

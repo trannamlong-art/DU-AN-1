@@ -35,10 +35,18 @@ public class SpawnTetromino : MonoBehaviour
         // World pos = bottom‑left + (gridX, gridY)
         Vector3 worldPos = transform.position + new Vector3(spawnGridX, spawnGridY, 0f);
 
-        Instantiate(
-            tetrominoPrefabs[Random.Range(0, tetrominoPrefabs.Length)],
-            worldPos,
-            Quaternion.identity);
+        GameObject newTetromino = Instantiate(
+    tetrominoPrefabs[Random.Range(0, tetrominoPrefabs.Length)],
+    worldPos,
+    Quaternion.identity
+);
+
+        // Ép Tetromino snap vào đúng grid ngay sau khi spawn
+        TetrisBlock tb = newTetromino.GetComponent<TetrisBlock>();
+        if (tb != null)
+            tb.SendMessage("SnapToGrid");
+
+
     }
 
 }
