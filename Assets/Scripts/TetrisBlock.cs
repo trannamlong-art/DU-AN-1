@@ -1,36 +1,37 @@
 ﻿using UnityEngine;
+using System.Collections;
 
 public class TetrisBlock : MonoBehaviour
 {
-    /* =======  CONFIG  ======= */
     public Vector3 rotationPoint = new Vector3(0.5f, 0.5f, 0f);
-    public float fallTime = 0.8f;
 
-    public const int width = 10;   // cột 0‑9
-    public const int height = 20;   // 20 hàng hiển thị (0‑19)
-    private const int hiddenRows = 4;    // hàng spawn/ẩn
-    private const int gridHeight = height + hiddenRows; // =24
-    private const int bottomOffset = 9;   // world‑y của hàng 0 → -9
+    public const int width = 10;
+    public const int height = 20;
+    private const int hiddenRows = 4;
+    private const int gridHeight = height + hiddenRows;
+    private const int bottomOffset = 9;
 
-    /* =======  RUNTIME  ======= */
     private float previousTime;
     private static readonly Transform[,] grid = new Transform[width, gridHeight];
 
-    /* =======  UNITY HOOKS  ======= */
+    private BlockSound blockSound;
+    private Clear clearEffect;
+
+    private void Awake()
+    {
+        blockSound = GetComponent<BlockSound>();
+        clearEffect = FindFirstObjectByType<Clear>();
+    }
 
     private void OnEnable()
     {
         previousTime = Time.time;
 
-        // Game Over nếu spawn đã đè khối cũ
         if (!ValidMove())
         {
             transform.position += Vector3.up;
-
-            // ⚠️ Snap cả object cha và block con về đúng lưới **trước khi ghi vào grid**
             SnapToGrid();
 
-            // Kiểm tra lại sau snap lần cuối nếu vẫn sai thì không ghi lưới
             if (!ValidMove())
             {
                 Debug.LogError("Snap sai: vẫn invalid sau khi Snap lại");
@@ -38,7 +39,6 @@ public class TetrisBlock : MonoBehaviour
             }
 
             AddToGrid();
-
             enabled = false;
             FindFirstObjectByType<SpawnTetromino>().SpawnNext();
         }
@@ -50,8 +50,6 @@ public class TetrisBlock : MonoBehaviour
         HandleFalling();
     }
 
-    /* =======  INPUT  ======= */
-
     private void HandleInput()
     {
         if (Input.GetKeyDown(KeyCode.LeftArrow)) Move(Vector3.left);
@@ -59,11 +57,11 @@ public class TetrisBlock : MonoBehaviour
         else if (Input.GetKeyDown(KeyCode.UpArrow)) Rotate();
     }
 
-    /* =======  FALLING  ======= */
-
     private void HandleFalling()
     {
-        float step = Input.GetKey(KeyCode.DownArrow) ? fallTime / 10f : fallTime;
+        bool isFastFalling = Input.GetKey(KeyCode.DownArrow);
+        float step = isFastFalling ? GameManager.Instance.fallSpeed / 10f
+                                   : GameManager.Instance.fallSpeed;
 
         if (Time.time - previousTime > step)
         {
@@ -76,33 +74,46 @@ public class TetrisBlock : MonoBehaviour
                 SnapToGrid();
                 AddToGrid();
                 enabled = false;
-                FindFirstObjectByType<SpawnTetromino>().SpawnNext();
+                StartCoroutine(CheckForLinesAndSpawn());
+            }
+            else if (isFastFalling)
+            {
+                blockSound?.PlayDropSound(); // Rơi nhanh có hiệu lực
             }
 
             previousTime = Time.time;
         }
     }
 
-    /* =======  MOVE & ROTATE  ======= */
-
     private void Move(Vector3 dir)
     {
         transform.position += dir;
         SnapToGrid();
-        if (!ValidMove()) transform.position -= dir;
+
+        if (!ValidMove())
+        {
+            transform.position -= dir;
+        }
+        else
+        {
+            blockSound?.PlayMoveSound();
+        }
     }
 
     private void Rotate()
     {
-        transform.RotateAround(transform.TransformPoint(rotationPoint),
-                               Vector3.forward, 90);
+        transform.RotateAround(transform.TransformPoint(rotationPoint), Vector3.forward, 90);
         SnapToGrid();
-        if (!ValidMove())
-            transform.RotateAround(transform.TransformPoint(rotationPoint),
-                                   Vector3.forward, -90);
-    }
 
-    /* =======  GRID HELPERS  ======= */
+        if (!ValidMove())
+        {
+            transform.RotateAround(transform.TransformPoint(rotationPoint), Vector3.forward, -90);
+        }
+        else
+        {
+            blockSound?.PlayRotateSound();
+        }
+    }
 
     private void SnapToGrid()
     {
@@ -113,18 +124,14 @@ public class TetrisBlock : MonoBehaviour
         }
 
         transform.position = new Vector3(Mathf.Round(transform.position.x), Mathf.Round(transform.position.y), 0f);
-
     }
-
 
     private Vector2Int GridPos(Transform t)
     {
         int x = Mathf.RoundToInt(t.position.x);
         int y = Mathf.RoundToInt(t.position.y) + bottomOffset;
-        return new Vector2Int(x, y);          // (0‒9, 0‒23)
+        return new Vector2Int(x, y);
     }
-
-    /* -- ghi block vào lưới ------------------------------------------------ */
 
     private void AddToGrid()
     {
@@ -135,17 +142,13 @@ public class TetrisBlock : MonoBehaviour
                 continue;
 
             grid[pos.x, pos.y] = child;
-            // ⚠️ CHỈ GỌI SetParent(null) SAU KHI block đã nằm yên
         }
 
-        // ✅ Tách block ra khỏi Tetromino khi chúng đã dính vào lưới
         foreach (Transform child in transform)
         {
             child.SetParent(null);
         }
     }
-
-    /* -- kiểm tra nước đi hợp lệ ------------------------------------------ */
 
     private bool ValidMove()
     {
@@ -154,17 +157,83 @@ public class TetrisBlock : MonoBehaviour
             int x = Mathf.RoundToInt(child.position.x);
             int y = Mathf.RoundToInt(child.position.y);
 
-            // dưới đáy hoặc ra mép
             if (x < 0 || x >= width || y < -bottomOffset) return false;
 
             int gY = y + bottomOffset;
-            if (gY >= gridHeight) continue;   // vượt hàng ẩn → OK
+            if (gY >= gridHeight) continue;
 
-            // ô đã có gạch khác?
             Transform t = grid[x, gY];
             if (t != null && t.parent != transform) return false;
         }
         return true;
     }
+
+    private IEnumerator CheckForLinesAndSpawn()
+    {
+        yield return StartCoroutine(ClearFullLinesWithDelay());
+        FindFirstObjectByType<SpawnTetromino>().SpawnNext();
+    }
+
+    private IEnumerator ClearFullLinesWithDelay()
+    {
+        int linesCleared = 0;
+
+        for (int y = 0; y < gridHeight; y++)
+        {
+            if (IsLineFull(y))
+            {
+                blockSound?.PlayLineClearSound();
+                clearEffect?.SpawnFireEffect(y);
+
+                yield return new WaitForSeconds(1.0f);
+
+                DeleteLine(y);
+                MoveLinesDown(y);
+                y--;
+                linesCleared++;
+            }
+        }
+
+        if (linesCleared > 0)
+        {
+            GameManager.Instance.AddScore(linesCleared * 50);
+        }
+    }
+
+    private bool IsLineFull(int y)
+    {
+        for (int x = 0; x < width; x++)
+        {
+            if (grid[x, y] == null) return false;
+        }
+        return true;
+    }
+
+    private void DeleteLine(int y)
+    {
+        for (int x = 0; x < width; x++)
+        {
+            if (grid[x, y] != null)
+            {
+                Destroy(grid[x, y].gameObject);
+                grid[x, y] = null;
+            }
+        }
+    }
+
+    private void MoveLinesDown(int fromY)
+    {
+        for (int y = fromY; y < gridHeight - 1; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                if (grid[x, y + 1] != null)
+                {
+                    grid[x, y] = grid[x, y + 1];
+                    grid[x, y + 1] = null;
+                    grid[x, y].position += Vector3.down;
+                }
+            }
+        }
+    }
 }
-    
