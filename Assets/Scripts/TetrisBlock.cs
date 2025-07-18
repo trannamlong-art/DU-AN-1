@@ -35,6 +35,22 @@ public class TetrisBlock : MonoBehaviour
             if (!ValidMove())
             {
                 Debug.LogError("Snap sai: vẫn invalid sau khi Snap lại");
+
+                // ✅ Thêm khối vào grid (dù sai)
+                AddToGrid();
+
+                // ✅ THÊM: Hiện UI nếu khối spawn ra đã bị kẹt
+                GameOverManager gom = FindFirstObjectByType<GameOverManager>();
+                if (gom != null)
+                {
+                    gom.ShowGameOver();
+                    Debug.Log("🟥 GAME OVER – Spawn ra đã bị kẹt!");
+                }
+                else
+                {
+                    Debug.LogError("❌ Không tìm thấy GameOverManager!");
+                }
+
                 return;
             }
 
