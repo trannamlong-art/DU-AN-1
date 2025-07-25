@@ -1,16 +1,13 @@
 ﻿using UnityEngine;
 
-// ---------------------------------------------------------------------------
-//  SpawnTetromino.cs (v3 – vị trí spawn chính xác, không double‑offset)
-//  • Gắn script vào GameObject đặt ở góc trái‑dưới bảng (0,‑9)
-//  • Start() sinh duy nhất 1 khối; các lần sau gọi từ TetrisBlock
-// ---------------------------------------------------------------------------
-
 [DisallowMultipleComponent]
 public class SpawnTetromino : MonoBehaviour
 {
     [Tooltip("Prefabs của tất cả 7 khối tetromino")]
     public GameObject[] tetrominoPrefabs;
+
+    [Tooltip("Script UI điều khiển các nút trái, phải, xuống, xoay")]
+    public TetrisUIController uiController;  // Thêm biến tham chiếu tới UI
 
     private const int boardWidth = 10;
     private const int boardHeight = 20;
@@ -28,25 +25,36 @@ public class SpawnTetromino : MonoBehaviour
             return;
         }
 
-        // Vị trí spawn: (giữa bảng, hàng trên cùng)
-        int spawnGridX = boardWidth / 2 - 1;  // 4
-        int spawnGridY = boardHeight - 1;     // 19
+        // Tính vị trí spawn ở giữa bảng
+        int spawnGridX = boardWidth / 2 - 1;
+        int spawnGridY = boardHeight - 1;
 
-        // World pos = bottom‑left + (gridX, gridY)
         Vector3 worldPos = transform.position + new Vector3(spawnGridX, spawnGridY, 0f);
 
+        // Sinh ra khối mới từ 1 trong 7 prefab
         GameObject newTetromino = Instantiate(
-    tetrominoPrefabs[Random.Range(0, tetrominoPrefabs.Length)],
-    worldPos,
-    Quaternion.identity
-);
+            tetrominoPrefabs[Random.Range(0, tetrominoPrefabs.Length)],
+            worldPos,
+            Quaternion.identity
+        );
 
-        // Ép Tetromino snap vào đúng grid ngay sau khi spawn
+        // Lấy component TetrisBlock từ khối vừa sinh
         TetrisBlock tb = newTetromino.GetComponent<TetrisBlock>();
         if (tb != null)
+        {
+            // Snap vào lưới
             tb.SendMessage("SnapToGrid");
 
-
+            // GÁN khối mới cho UI Controller để các nút có thể điều khiển
+            if (uiController != null)
+            {
+                uiController.SetCurrentBlock(tb);
+                Debug.Log("Gán currentBlock thành công cho UI Controller");
+            }
+            else
+            {
+                Debug.LogWarning("uiController chưa được gán trong Inspector!");
+            }
+        }
     }
-
 }
