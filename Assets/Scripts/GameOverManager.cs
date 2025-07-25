@@ -28,4 +28,5 @@ public class GameOverManager : MonoBehaviour
         Time.timeScale = 1f;
         SceneManager.LoadScene("Menu"); // đổi tên cho đúng scene menu
     }
+    
 }

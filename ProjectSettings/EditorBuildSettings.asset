@@ -9,7 +9,13 @@ EditorBuildSettings:
     path: Assets/Scenes/Menu.unity
     guid: 1a59a49b8aaa2a64c8b0885d7b9b7709
   - enabled: 1
+    path: Assets/Scenes/SceneM7.unity
+    guid: 73a3474c3319415478a0cb6f3c33e2a4
+  - enabled: 1
     path: Assets/Scenes/SceneLong.unity
     guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/Scenes/SceneTrungDepzai.unity
+    guid: 2ab4fb75b461e054d95a91c8da1812e7
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

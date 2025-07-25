@@ -15,3 +15,4 @@ public class FireColumnMover : MonoBehaviour
         }
     }
 }
+    
