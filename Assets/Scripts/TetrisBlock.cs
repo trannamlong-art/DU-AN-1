@@ -36,10 +36,10 @@ public class TetrisBlock : MonoBehaviour
             {
                 Debug.LogError("Snap sai: vẫn invalid sau khi Snap lại");
 
-                // ✅ Thêm khối vào grid (dù sai)
+                // Thêm khối vào grid (dù sai)
                 AddToGrid();
 
-                // ✅ THÊM: Hiện UI nếu khối spawn ra đã bị kẹt
+                // Hiện UI nếu khối spawn ra đã bị kẹt
                 GameOverManager gom = FindFirstObjectByType<GameOverManager>();
                 if (gom != null)
                 {
@@ -101,7 +101,7 @@ public class TetrisBlock : MonoBehaviour
         }
     }
 
-    private void Move(Vector3 dir)
+    public void Move(Vector3 dir)
     {
         transform.position += dir;
         SnapToGrid();
@@ -116,7 +116,7 @@ public class TetrisBlock : MonoBehaviour
         }
     }
 
-    private void Rotate()
+    public void Rotate()
     {
         transform.RotateAround(transform.TransformPoint(rotationPoint), Vector3.forward, 90);
         SnapToGrid();

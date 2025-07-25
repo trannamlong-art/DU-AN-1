@@ -10,18 +10,14 @@ public class PauseManager : MonoBehaviour
     void Start()
     {
         pausePanel.SetActive(false);
+        Time.timeScale = 1f; // đảm bảo game chạy bình thường khi start
     }
 
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (gameOverPanel != null && gameOverPanel.activeSelf)
-            {
-                // Nếu đang ở trạng thái Game Over thì không cho pause
-                return;
-            }
-
+           
             if (isPaused)
                 ResumeGame();
             else
@@ -31,6 +27,8 @@ public class PauseManager : MonoBehaviour
 
     public void PauseGame()
     {
+       
+
         Time.timeScale = 0f;
         pausePanel.SetActive(true);
         isPaused = true;
