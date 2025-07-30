@@ -19,6 +19,14 @@ public class MainMenu : MonoBehaviour
     {
         SceneManager.LoadScene("SceneLong"); // Đặt tên scene phù hợp
     }
+    public void Player()
+    {
+        SceneManager.LoadScene("SceneM7"); // Đặt tên scene phù hợp
+    }
+    public void AI()
+    {
+        SceneManager.LoadScene("AI"); // Đặt tên scene phù hợp
+    }
 
     public void QuitGame()
     {
